@@ -19,6 +19,7 @@ interface ResultadoCalculoProps {
   onSalvar: () => void;
   mostrarBotaoSalvar?: boolean;
   nomeOrcamento?: string;
+  numeroParcelas?: number;
 }
 
 export function ResultadoCalculo({
@@ -26,6 +27,7 @@ export function ResultadoCalculo({
   onSalvar,
   mostrarBotaoSalvar = true,
   nomeOrcamento,
+  numeroParcelas,
 }: ResultadoCalculoProps) {
   const {
     valorVista,
@@ -53,13 +55,15 @@ export function ResultadoCalculo({
 
     mensagem +=
       `💰 Valor no Pix: ${formatarMoeda(valorVista)}\n` +
-      `💳 Total parcelado: ${formatarMoeda(totalPrazo)}\n` +
+      `💳 Total parcelado: ${formatarMoeda(totalPrazo)}${
+        numeroParcelas ? ` (${numeroParcelas}x)` : ''
+      }\n` +
       `📊 Valor presente: ${formatarMoeda(valorPresente)}\n\n` +
       `✅ *Compensa pagar ${opcaoMelhor}*\n` +
       `💵 Economia de ${formatarMoeda(
         diferencaNominal
       )} (${diferencaPercentual.toFixed(1)}%)\n\n` +
-      `Calculado em: https://pixouparcela.app`;
+      `Calculado em: https://pix-ou-parcela.vercel.app/`;
 
     return mensagem;
   };
@@ -124,7 +128,14 @@ export function ResultadoCalculo({
 
         <div className="flex justify-between items-center pb-3 border-b border-border">
           <span className="text-sm text-muted-foreground">Total parcelado</span>
-          <span className="font-semibold">{formatarMoeda(totalPrazo)}</span>
+          <div className="flex flex-col items-end">
+            <span className="font-semibold">{formatarMoeda(totalPrazo)}</span>
+            {numeroParcelas && (
+              <span className="text-xs text-muted-foreground mt-0.5">
+                {numeroParcelas}x
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-between items-start pb-3 border-b border-border">
