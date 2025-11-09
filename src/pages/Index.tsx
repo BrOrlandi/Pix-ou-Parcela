@@ -15,6 +15,7 @@ import {
   Orcamento,
 } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { DollarSign } from "lucide-react";
 
 export default function Index() {
@@ -172,16 +173,19 @@ export default function Index() {
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-10 shadow-sm">
         <div className="container max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-              <DollarSign className="h-6 w-6 text-primary-foreground" />
+          <div className="flex items-center gap-3 justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Pix ou Parcela</h1>
+                <p className="text-xs text-muted-foreground">
+                  Descubra a melhor forma de pagamento
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Pix ou Parcela</h1>
-              <p className="text-xs text-muted-foreground">
-                Descubra a melhor forma de pagamento
-              </p>
-            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>
