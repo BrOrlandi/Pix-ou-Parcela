@@ -4,6 +4,8 @@
 
 Uma aplicação web que ajuda você a decidir entre pagar à vista (Pix) ou parcelado, calculando o valor presente das parcelas e comparando com o valor à vista.
 
+https://pix-ou-parcela.vercel.app/
+
 ## 📋 Sobre o Projeto
 
 O **Pix ou Parcela** é uma ferramenta financeira que realiza cálculos de valor presente para comparar duas formas de pagamento:
