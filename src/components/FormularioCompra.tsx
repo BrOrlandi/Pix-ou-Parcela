@@ -34,6 +34,24 @@ export function FormularioCompra({
     valoresIniciais?.valorParcela?.toString() || ''
   );
 
+  // Atualizar campos quando valoresIniciais mudar
+  useEffect(() => {
+    if (valoresIniciais) {
+      if (valoresIniciais.nomeOrcamento !== undefined) {
+        setNome(valoresIniciais.nomeOrcamento);
+      }
+      if (valoresIniciais.valorVista !== undefined) {
+        setValorVista(valoresIniciais.valorVista.toString());
+      }
+      if (valoresIniciais.numeroParcelas !== undefined) {
+        setNumeroParcelas(valoresIniciais.numeroParcelas.toString());
+      }
+      if (valoresIniciais.valorParcela !== undefined) {
+        setValorParcela(valoresIniciais.valorParcela.toString());
+      }
+    }
+  }, [valoresIniciais]);
+
   const podeCalcular =
     valorVista &&
     numeroParcelas &&
@@ -58,7 +76,7 @@ export function FormularioCompra({
 
   function formatarMoedaInput(valor: string): string {
     // Remove tudo que não é número ou vírgula/ponto
-    const apenasNumeros = valor.replace(/[^\d,\.]/g, '');
+    const apenasNumeros = valor.replace(/[^\d,.]/g, '');
     return apenasNumeros;
   }
 
