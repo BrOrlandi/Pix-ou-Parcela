@@ -218,6 +218,7 @@ export default function Index() {
             resultado={resultado}
             onSalvar={handleSalvarOrcamento}
             mostrarBotaoSalvar={!!dadosAtuais?.nomeOrcamento}
+            nomeOrcamento={dadosAtuais?.nomeOrcamento}
           />
         )}
 
