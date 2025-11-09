@@ -22,6 +22,14 @@ export function taxaDiariaParaMensal(taxaDiariaDecimal: number): number {
 }
 
 /**
+ * Converte taxa diária (em decimal) para taxa anual
+ * Assume 252 dias úteis por ano
+ */
+export function taxaDiariaParaAnual(taxaDiariaDecimal: number): number {
+  return Math.pow(1 + taxaDiariaDecimal, 252) - 1;
+}
+
+/**
  * Converte taxa anual (em decimal) para taxa mensal
  */
 export function taxaAnualParaMensal(taxaAnualDecimal: number): number {
@@ -37,11 +45,11 @@ export function calcularValorPresente(
   taxaMensal: number
 ): number {
   let valorPresente = 0;
-  
+
   for (let i = 1; i <= numeroParcelas; i++) {
     valorPresente += valorParcela / Math.pow(1 + taxaMensal, i);
   }
-  
+
   return valorPresente;
 }
 
@@ -58,12 +66,12 @@ export function calcularComparacao(
     dados.numeroParcelas,
     taxaMensal
   );
-  
+
   const compensaParcela = valorPresente < dados.valorVista;
   const diferencaNominal = Math.abs(dados.valorVista - valorPresente);
   const baseCalculo = Math.min(dados.valorVista, valorPresente);
   const diferencaPercentual = (diferencaNominal / baseCalculo) * 100;
-  
+
   return {
     valorVista: dados.valorVista,
     totalPrazo,
@@ -78,8 +86,8 @@ export function calcularComparacao(
  * Formata valor em moeda brasileira
  */
 export function formatarMoeda(valor: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
   }).format(valor);
 }

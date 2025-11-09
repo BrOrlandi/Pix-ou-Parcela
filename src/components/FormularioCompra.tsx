@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Calculator } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Calculator } from 'lucide-react';
 
 export interface DadosFormulario {
   nomeOrcamento: string;
@@ -23,15 +23,15 @@ export function FormularioCompra({
   valoresIniciais,
   desabilitado,
 }: FormularioCompraProps) {
-  const [nome, setNome] = useState(valoresIniciais?.nomeOrcamento || "");
+  const [nome, setNome] = useState(valoresIniciais?.nomeOrcamento || '');
   const [valorVista, setValorVista] = useState(
-    valoresIniciais?.valorVista?.toString() || ""
+    valoresIniciais?.valorVista?.toString() || ''
   );
   const [numeroParcelas, setNumeroParcelas] = useState(
-    valoresIniciais?.numeroParcelas?.toString() || ""
+    valoresIniciais?.numeroParcelas?.toString() || '12' // 12 parcelas por padrão
   );
   const [valorParcela, setValorParcela] = useState(
-    valoresIniciais?.valorParcela?.toString() || ""
+    valoresIniciais?.valorParcela?.toString() || ''
   );
 
   const podeCalcular =
@@ -58,7 +58,7 @@ export function FormularioCompra({
 
   function formatarMoedaInput(valor: string): string {
     // Remove tudo que não é número ou vírgula/ponto
-    const apenasNumeros = valor.replace(/[^\d,\.]/g, "");
+    const apenasNumeros = valor.replace(/[^\d,\.]/g, '');
     return apenasNumeros;
   }
 
@@ -101,7 +101,9 @@ export function FormularioCompra({
                 inputMode="decimal"
                 placeholder="0,00"
                 value={valorVista}
-                onChange={(e) => setValorVista(formatarMoedaInput(e.target.value))}
+                onChange={(e) =>
+                  setValorVista(formatarMoedaInput(e.target.value))
+                }
                 className="pl-10"
                 required
               />
@@ -141,7 +143,9 @@ export function FormularioCompra({
                   inputMode="decimal"
                   placeholder="0,00"
                   value={valorParcela}
-                  onChange={(e) => setValorParcela(formatarMoedaInput(e.target.value))}
+                  onChange={(e) =>
+                    setValorParcela(formatarMoedaInput(e.target.value))
+                  }
                   className="pl-10"
                   required
                 />
