@@ -1,73 +1,217 @@
-# Welcome to your Lovable project
+# Pix ou Parcela
 
-## Project info
+**Descubra a melhor forma de pagamento**
 
-**URL**: https://lovable.dev/projects/cf101fe4-2488-414b-af5e-647b04d2721a
+Uma aplicação web que ajuda você a decidir entre pagar à vista (Pix) ou parcelado, calculando o valor presente das parcelas e comparando com o valor à vista.
 
-## How can I edit this code?
+## 📋 Sobre o Projeto
 
-There are several ways of editing your application.
+O **Pix ou Parcela** é uma ferramenta financeira que realiza cálculos de valor presente para comparar duas formas de pagamento:
 
-**Use Lovable**
+- **Pagamento à vista (Pix)**: Valor total pago imediatamente
+- **Pagamento parcelado**: Valor total dividido em parcelas mensais
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cf101fe4-2488-414b-af5e-647b04d2721a) and start prompting.
+A aplicação utiliza a taxa Selic atual do Banco Central do Brasil ou permite que você configure sua própria taxa de rendimento para calcular o valor presente das parcelas e determinar qual opção é mais vantajosa financeiramente.
 
-Changes made via Lovable will be committed automatically to this repo.
+## ✨ Funcionalidades
 
-**Use your preferred IDE**
+### 🎯 Cálculo Financeiro
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Comparação entre pagamento à vista (Pix) e parcelado
+- Cálculo do valor presente das parcelas usando taxa de desconto
+- Exibição da diferença nominal e percentual entre as opções
+- Recomendação clara sobre qual forma de pagamento é mais vantajosa
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 📊 Taxa de Juros
 
-Follow these steps:
+- **Taxa Selic atual**: Consulta automática da taxa Selic diária através da API do Banco Central do Brasil
+- **Taxa personalizada**: Permite configurar sua própria taxa média de rendimento anual
+- Conversão automática entre taxas diárias, mensais e anuais
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 💾 Gerenciamento de Orçamentos
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- Salvar cálculos realizados com nome personalizado
+- Listar todos os orçamentos salvos
+- Carregar orçamentos anteriores para edição e recálculo
+- Excluir orçamentos salvos
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 📱 Compartilhamento
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+- Compartilhar resultados via WhatsApp (mobile)
+- Copiar resultado para área de transferência (desktop)
+- Formatação otimizada para compartilhamento
+
+### 🎨 Interface Moderna
+
+- Design responsivo para desktop e mobile
+- Suporte a tema claro e escuro
+- Interface intuitiva e fácil de usar
+- Feedback visual claro sobre a melhor opção
+
+## 🖼️ Screenshots
+
+### Tela Principal - Formulário de Cálculo
+
+![Tela Principal](public/Screenshot1.png)
+
+A tela principal permite configurar a taxa de juros e preencher os dados da compra para realizar o cálculo.
+
+### Resultado da Análise
+
+![Resultado](public/Screenshot2.png)
+
+A tela de resultado exibe uma comparação detalhada entre as opções de pagamento e recomenda a melhor escolha financeira.
+
+## 🛠️ Tecnologias Utilizadas
+
+### Frontend
+
+- **React 18** - Biblioteca JavaScript para construção de interfaces
+- **TypeScript** - Superset do JavaScript com tipagem estática
+- **Vite** - Build tool e dev server rápido
+- **React Router DOM** - Roteamento para aplicações React
+
+### UI/UX
+
+- **Tailwind CSS** - Framework CSS utility-first
+- **shadcn/ui** - Componentes UI baseados em Radix UI
+- **Radix UI** - Componentes acessíveis e customizáveis
+- **Lucide React** - Biblioteca de ícones
+- **next-themes** - Gerenciamento de temas (claro/escuro)
+
+### Estado e Dados
+
+- **TanStack Query (React Query)** - Gerenciamento de estado assíncrono e cache
+- **LocalStorage** - Armazenamento local de orçamentos e configurações
+
+### APIs Externas
+
+- **API do Banco Central do Brasil** - Consulta da taxa Selic diária
+
+### Outras Ferramentas
+
+- **Zod** - Validação de schemas TypeScript
+- **React Hook Form** - Gerenciamento de formulários
+- **date-fns** - Manipulação de datas
+- **PWA** - Suporte a Progressive Web App
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+
+- Node.js (versão 18 ou superior)
+- npm ou yarn ou bun
+
+### Instalação
+
+1. Clone o repositório:
+
+```bash
+git clone <URL_DO_REPOSITORIO>
+cd Pix-ou-Parcela
 ```
 
-**Edit a file directly in GitHub**
+2. Instale as dependências:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm install
+# ou
+yarn install
+# ou
+bun install
+```
 
-**Use GitHub Codespaces**
+3. Inicie o servidor de desenvolvimento:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+npm run dev
+# ou
+yarn dev
+# ou
+bun dev
+```
 
-## What technologies are used for this project?
+4. Acesse a aplicação em `http://localhost:5173`
 
-This project is built with:
+### Build para Produção
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```bash
+npm run build
+# ou
+yarn build
+# ou
+bun build
+```
 
-## How can I deploy this project?
+Os arquivos de produção serão gerados na pasta `dist/`.
 
-Simply open [Lovable](https://lovable.dev/projects/cf101fe4-2488-414b-af5e-647b04d2721a) and click on Share -> Publish.
+## 📖 Como Usar
 
-## Can I connect a custom domain to my Lovable project?
+1. **Configure a taxa de juros**:
 
-Yes, you can!
+   - Escolha entre usar a taxa Selic atual (atualizada automaticamente do BCB) ou configure sua própria taxa média de rendimento
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+2. **Preencha os dados da compra**:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+   - Nome do orçamento (opcional)
+   - Valor à vista (Pix)
+   - Número de parcelas
+   - Valor de cada parcela
+
+3. **Calcule**:
+
+   - Clique em "Calcular melhor opção"
+   - Veja o resultado comparando as duas formas de pagamento
+
+4. **Salve e compartilhe**:
+   - Salve o cálculo para consultar depois
+   - Compartilhe o resultado via WhatsApp ou copie para área de transferência
+
+## 📝 Estrutura do Projeto
+
+```
+Pix-ou-Parcela/
+├── src/
+│   ├── components/          # Componentes React
+│   │   ├── FormularioCompra.tsx
+│   │   ├── ResultadoCalculo.tsx
+│   │   ├── TaxaSelector.tsx
+│   │   ├── ListaOrcamentos.tsx
+│   │   └── ui/              # Componentes UI do shadcn
+│   ├── pages/               # Páginas da aplicação
+│   │   ├── Index.tsx
+│   │   └── NotFound.tsx
+│   ├── utils/               # Utilitários
+│   │   ├── calculos.ts      # Funções de cálculo financeiro
+│   │   ├── bcb-api.ts       # Integração com API do BCB
+│   │   └── storage.ts       # Gerenciamento de localStorage
+│   ├── hooks/               # Custom hooks
+│   └── lib/                 # Bibliotecas auxiliares
+├── public/                  # Arquivos estáticos
+└── package.json
+```
+
+## 🔧 Scripts Disponíveis
+
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Cria build de produção
+- `npm run preview` - Preview do build de produção
+- `npm run lint` - Executa o linter
+
+## 📄 Licença
+
+Este projeto é de código aberto e está disponível sob a licença MIT.
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
+
+---
+
+## 🤖 Desenvolvimento
+
+Este projeto foi desenvolvido totalmente por inteligência artificial, demonstrando as capacidades de desenvolvimento de software assistido por IA.
+
+---
+
+Desenvolvido com ❤️ para ajudar nas decisões financeiras do dia a dia.

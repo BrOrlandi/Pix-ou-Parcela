@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
-import { TaxaSelector, TaxaInfo } from "@/components/TaxaSelector";
-import { FormularioCompra, DadosFormulario } from "@/components/FormularioCompra";
-import { ResultadoCalculo, Resultado } from "@/components/ResultadoCalculo";
-import { ListaOrcamentos } from "@/components/ListaOrcamentos";
-import { calcularComparacao } from "@/utils/calculos";
+import { useState, useEffect } from 'react';
+import { TaxaSelector, TaxaInfo } from '@/components/TaxaSelector';
+import {
+  FormularioCompra,
+  DadosFormulario,
+} from '@/components/FormularioCompra';
+import { ResultadoCalculo, Resultado } from '@/components/ResultadoCalculo';
+import { ListaOrcamentos } from '@/components/ListaOrcamentos';
+import { calcularComparacao } from '@/utils/calculos';
 import {
   salvarOrcamento,
   listarOrcamentos,
@@ -13,10 +16,10 @@ import {
   salvarUltimosInputs,
   carregarUltimosInputs,
   Orcamento,
-} from "@/utils/storage";
-import { useToast } from "@/hooks/use-toast";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { DollarSign } from "lucide-react";
+} from '@/utils/storage';
+import { useToast } from '@/hooks/use-toast';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { DollarSign } from 'lucide-react';
 
 export default function Index() {
   const { toast } = useToast();
@@ -24,9 +27,9 @@ export default function Index() {
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [dadosAtuais, setDadosAtuais] = useState<DadosFormulario | null>(null);
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
-  const [orcamentoSelecionadoId, setOrcamentoSelecionadoId] = useState<string | null>(
-    null
-  );
+  const [orcamentoSelecionadoId, setOrcamentoSelecionadoId] = useState<
+    string | null
+  >(null);
 
   // Carregar configurações iniciais
   useEffect(() => {
@@ -53,9 +56,9 @@ export default function Index() {
   function handleCalcular(dados: DadosFormulario) {
     if (!taxaInfo) {
       toast({
-        title: "Taxa não configurada",
-        description: "Por favor, configure uma taxa de juros primeiro.",
-        variant: "destructive",
+        title: 'Taxa não configurada',
+        description: 'Por favor, configure uma taxa de juros primeiro.',
+        variant: 'destructive',
       });
       return;
     }
@@ -92,7 +95,7 @@ export default function Index() {
 
     const orcamento: Orcamento = {
       id: orcamentoSelecionadoId || crypto.randomUUID(),
-      nome: dadosAtuais.nomeOrcamento || "Sem nome",
+      nome: dadosAtuais.nomeOrcamento || 'Sem nome',
       valorVista: dadosAtuais.valorVista,
       numeroParcelas: dadosAtuais.numeroParcelas,
       valorParcela: dadosAtuais.valorParcela,
@@ -113,8 +116,8 @@ export default function Index() {
     setOrcamentoSelecionadoId(orcamento.id);
 
     toast({
-      title: "Orçamento salvo!",
-      description: "Você pode consultá-lo a qualquer momento.",
+      title: 'Orçamento salvo!',
+      description: 'Você pode consultá-lo a qualquer momento.',
     });
   }
 
@@ -149,8 +152,8 @@ export default function Index() {
     });
 
     toast({
-      title: "Orçamento carregado",
-      description: "Você pode editar e recalcular se quiser.",
+      title: 'Orçamento carregado',
+      description: 'Você pode editar e recalcular se quiser.',
     });
   }
 
@@ -163,8 +166,8 @@ export default function Index() {
     }
 
     toast({
-      title: "Orçamento excluído",
-      description: "O orçamento foi removido com sucesso.",
+      title: 'Orçamento excluído',
+      description: 'O orçamento foi removido com sucesso.',
     });
   }
 
@@ -179,7 +182,9 @@ export default function Index() {
                 <DollarSign className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Pix ou Parcela</h1>
+                <h1 className="text-xl font-bold text-foreground">
+                  Pix ou Parcela
+                </h1>
                 <p className="text-xs text-muted-foreground">
                   Descubra a melhor forma de pagamento
                 </p>
