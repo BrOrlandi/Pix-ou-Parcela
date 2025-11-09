@@ -1,0 +1,24 @@
+{
+  "name": "Pix ou Parcela",
+  "short_name": "Pix ou Parcela",
+  "description": "Descubra se vale mais a pena pagar à vista ou parcelado",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0f7f4",
+  "theme_color": "#16a34a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
