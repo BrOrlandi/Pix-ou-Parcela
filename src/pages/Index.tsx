@@ -19,7 +19,14 @@ import {
 } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Github } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 export default function Index() {
   const { toast } = useToast();
@@ -190,7 +197,19 @@ export default function Index() {
                 </p>
               </div>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <a
+                href="https://github.com/BrOrlandi/Pix-ou-Parcela"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 p-2 rounded-md hover:bg-accent transition-colors"
+                aria-label="Ver repositório no GitHub"
+              >
+                <Github className="h-5 w-5 text-foreground" />
+                <span>GitHub</span>
+              </a>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>
