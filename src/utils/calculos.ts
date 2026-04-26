@@ -11,6 +11,22 @@ export interface ResultadoCalculo {
   diferencaNominal: number;
   diferencaPercentual: number;
   compensaParcela: boolean;
+  cenarioAutoFinanciado: CenarioAutoFinanciado;
+  cenarioDinheiroNovo: CenarioDinheiroNovo;
+}
+
+export interface CenarioAutoFinanciado {
+  saldoFinal: number;
+  rendimentoTotal: number;
+  totalPagoParcelas: number;
+  parcelaMaiorQueRendimento: boolean;
+}
+
+export interface CenarioDinheiroNovo {
+  saldoFinalAplicacao: number;
+  rendimentoTotal: number;
+  totalPagoParcelas: number;
+  ganhoLiquido: number;
 }
 
 /**
@@ -54,6 +70,59 @@ export function calcularValorPresente(
 }
 
 /**
+ * Cenário A — "Auto-financiado":
+ * Aplica o valor à vista e usa a própria aplicação (saques mensais)
+ * para pagar cada parcela. Considera a primeira parcela paga ao final
+ * do 1º mês (compatível com a fatura do cartão).
+ */
+export function simularAutoFinanciado(
+  valorVista: number,
+  valorParcela: number,
+  numeroParcelas: number,
+  taxaMensal: number
+): CenarioAutoFinanciado {
+  let saldo = valorVista;
+  for (let m = 1; m <= numeroParcelas; m++) {
+    saldo = saldo * (1 + taxaMensal) - valorParcela;
+  }
+
+  const totalPagoParcelas = numeroParcelas * valorParcela;
+  const rendimentoTotal = saldo + totalPagoParcelas - valorVista;
+
+  return {
+    saldoFinal: saldo,
+    rendimentoTotal,
+    totalPagoParcelas,
+    parcelaMaiorQueRendimento: saldo < 0,
+  };
+}
+
+/**
+ * Cenário B — "Dinheiro novo":
+ * O valor à vista permanece 100% aplicado durante todos os meses,
+ * sem saques. As parcelas são pagas com renda nova (salário).
+ */
+export function simularDinheiroNovo(
+  valorVista: number,
+  valorParcela: number,
+  numeroParcelas: number,
+  taxaMensal: number
+): CenarioDinheiroNovo {
+  const saldoFinalAplicacao =
+    valorVista * Math.pow(1 + taxaMensal, numeroParcelas);
+  const rendimentoTotal = saldoFinalAplicacao - valorVista;
+  const totalPagoParcelas = numeroParcelas * valorParcela;
+  const ganhoLiquido = rendimentoTotal - (totalPagoParcelas - valorVista);
+
+  return {
+    saldoFinalAplicacao,
+    rendimentoTotal,
+    totalPagoParcelas,
+    ganhoLiquido,
+  };
+}
+
+/**
  * Realiza o cálculo completo de comparação entre vista e parcelado
  */
 export function calcularComparacao(
@@ -72,6 +141,20 @@ export function calcularComparacao(
   const baseCalculo = Math.min(dados.valorVista, valorPresente);
   const diferencaPercentual = (diferencaNominal / baseCalculo) * 100;
 
+  const cenarioAutoFinanciado = simularAutoFinanciado(
+    dados.valorVista,
+    dados.valorParcela,
+    dados.numeroParcelas,
+    taxaMensal
+  );
+
+  const cenarioDinheiroNovo = simularDinheiroNovo(
+    dados.valorVista,
+    dados.valorParcela,
+    dados.numeroParcelas,
+    taxaMensal
+  );
+
   return {
     valorVista: dados.valorVista,
     totalPrazo,
@@ -79,6 +162,8 @@ export function calcularComparacao(
     diferencaNominal,
     diferencaPercentual,
     compensaParcela,
+    cenarioAutoFinanciado,
+    cenarioDinheiroNovo,
   };
 }
 

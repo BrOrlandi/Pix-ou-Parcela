@@ -6,7 +6,11 @@ import {
 } from '@/components/FormularioCompra';
 import { ResultadoCalculo, Resultado } from '@/components/ResultadoCalculo';
 import { ListaOrcamentos } from '@/components/ListaOrcamentos';
-import { calcularComparacao } from '@/utils/calculos';
+import {
+  calcularComparacao,
+  simularAutoFinanciado,
+  simularDinheiroNovo,
+} from '@/utils/calculos';
 import {
   salvarOrcamento,
   listarOrcamentos,
@@ -148,7 +152,7 @@ export default function Index() {
     };
     setTaxaInfo(taxa);
 
-    // Restaurar resultado
+    // Restaurar resultado (recalculando os cenários a partir dos dados salvos)
     setResultado({
       valorVista: orcamento.valorVista,
       totalPrazo: orcamento.totalPrazo,
@@ -156,6 +160,18 @@ export default function Index() {
       diferencaNominal: orcamento.diferencaNominal,
       diferencaPercentual: orcamento.diferencaPercentual,
       compensaParcela: orcamento.compensaParcela,
+      cenarioAutoFinanciado: simularAutoFinanciado(
+        orcamento.valorVista,
+        orcamento.valorParcela,
+        orcamento.numeroParcelas,
+        orcamento.taxaMensal
+      ),
+      cenarioDinheiroNovo: simularDinheiroNovo(
+        orcamento.valorVista,
+        orcamento.valorParcela,
+        orcamento.numeroParcelas,
+        orcamento.taxaMensal
+      ),
     });
 
     toast({

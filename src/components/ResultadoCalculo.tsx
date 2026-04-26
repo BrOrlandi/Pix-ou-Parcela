@@ -1,9 +1,32 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatarMoeda } from '@/utils/calculos';
-import { Save, CreditCard, Share2, Clipboard, Plus, Minus } from 'lucide-react';
+import {
+  Save,
+  CreditCard,
+  Share2,
+  Clipboard,
+  Plus,
+  Minus,
+  PiggyBank,
+  Wallet,
+} from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
+
+export interface CenarioAutoFinanciadoUI {
+  saldoFinal: number;
+  rendimentoTotal: number;
+  totalPagoParcelas: number;
+  parcelaMaiorQueRendimento: boolean;
+}
+
+export interface CenarioDinheiroNovoUI {
+  saldoFinalAplicacao: number;
+  rendimentoTotal: number;
+  totalPagoParcelas: number;
+  ganhoLiquido: number;
+}
 
 export interface Resultado {
   valorVista: number;
@@ -12,6 +35,8 @@ export interface Resultado {
   diferencaNominal: number;
   diferencaPercentual: number;
   compensaParcela: boolean;
+  cenarioAutoFinanciado: CenarioAutoFinanciadoUI;
+  cenarioDinheiroNovo: CenarioDinheiroNovoUI;
 }
 
 interface ResultadoCalculoProps {
@@ -36,6 +61,8 @@ export function ResultadoCalculo({
     diferencaNominal,
     diferencaPercentual,
     compensaParcela,
+    cenarioAutoFinanciado,
+    cenarioDinheiroNovo,
   } = resultado;
 
   const isMobile = useIsMobile();
@@ -248,6 +275,167 @@ export function ResultadoCalculo({
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Simulação detalhada */}
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-base font-semibold text-card-foreground">
+            Simulação detalhada
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Como ficaria seu dinheiro ao final das {numeroParcelas ?? ''}{' '}
+            {numeroParcelas === 1 ? 'parcela' : 'parcelas'}, considerando o
+            rendimento da aplicação.
+          </p>
+        </div>
+
+        {/* Cenário A — Auto-financiado */}
+        <div className="rounded-xl border border-border bg-card/50 p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-full bg-primary/10">
+              <PiggyBank className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-sm">
+                A) Aplico o valor à vista e pago as parcelas com saques
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Reservo {formatarMoeda(valorVista)} numa aplicação. A cada mês
+                ela rende e eu saco a parcela.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Rendimento bruto</span>
+              <span className="font-medium text-success">
+                +{formatarMoeda(cenarioAutoFinanciado.rendimentoTotal)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">
+                Total pago em parcelas
+              </span>
+              <span className="font-medium">
+                {formatarMoeda(cenarioAutoFinanciado.totalPagoParcelas)}
+              </span>
+            </div>
+            <div className="flex justify-between pt-2 border-t border-border">
+              <span className="font-semibold">Saldo ao final</span>
+              <span
+                className={`font-bold ${
+                  cenarioAutoFinanciado.saldoFinal >= 0
+                    ? 'text-success'
+                    : 'text-destructive'
+                }`}
+              >
+                {cenarioAutoFinanciado.saldoFinal >= 0 ? '+' : ''}
+                {formatarMoeda(cenarioAutoFinanciado.saldoFinal)}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {cenarioAutoFinanciado.saldoFinal >= 0 ? (
+                <>
+                  Sobra{' '}
+                  <span className="font-semibold text-success">
+                    {formatarMoeda(cenarioAutoFinanciado.saldoFinal)}
+                  </span>{' '}
+                  na aplicação após pagar todas as parcelas — parcelar foi mais
+                  vantajoso que pagar no Pix.
+                </>
+              ) : (
+                <>
+                  A aplicação acabaria antes do fim das parcelas. Faltariam{' '}
+                  <span className="font-semibold text-destructive">
+                    {formatarMoeda(Math.abs(cenarioAutoFinanciado.saldoFinal))}
+                  </span>{' '}
+                  — pagar no Pix sai mais barato.
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+
+        {/* Cenário B — Dinheiro novo */}
+        <div className="rounded-xl border border-border bg-card/50 p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-full bg-primary/10">
+              <Wallet className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-sm">
+                B) Mantenho tudo aplicado e pago as parcelas com salário novo
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {formatarMoeda(valorVista)} ficam 100% aplicados pelos{' '}
+                {numeroParcelas ?? ''} meses, sem saques. As parcelas saem do
+                salário do mês.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">
+                Saldo da aplicação ao final
+              </span>
+              <span className="font-medium">
+                {formatarMoeda(cenarioDinheiroNovo.saldoFinalAplicacao)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Rendimento bruto</span>
+              <span className="font-medium text-success">
+                +{formatarMoeda(cenarioDinheiroNovo.rendimentoTotal)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">
+                Total pago em parcelas (salário)
+              </span>
+              <span className="font-medium">
+                −{formatarMoeda(cenarioDinheiroNovo.totalPagoParcelas)}
+              </span>
+            </div>
+            <div className="flex justify-between pt-2 border-t border-border">
+              <span className="font-semibold">Ganho líquido</span>
+              <span
+                className={`font-bold ${
+                  cenarioDinheiroNovo.ganhoLiquido >= 0
+                    ? 'text-success'
+                    : 'text-destructive'
+                }`}
+              >
+                {cenarioDinheiroNovo.ganhoLiquido >= 0 ? '+' : ''}
+                {formatarMoeda(cenarioDinheiroNovo.ganhoLiquido)}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Comparado a pagar tudo no Pix hoje (e ficar sem aplicação), no
+              fim dos {numeroParcelas ?? ''} meses você fica com{' '}
+              <span
+                className={`font-semibold ${
+                  cenarioDinheiroNovo.ganhoLiquido >= 0
+                    ? 'text-success'
+                    : 'text-destructive'
+                }`}
+              >
+                {cenarioDinheiroNovo.ganhoLiquido >= 0 ? '+' : ''}
+                {formatarMoeda(cenarioDinheiroNovo.ganhoLiquido)}
+              </span>{' '}
+              em relação ao Pix.
+            </p>
+          </div>
+        </div>
+
+        <p className="text-[11px] leading-relaxed text-muted-foreground/80 px-1">
+          ⚠️ Os cenários A e B são premissas diferentes: em A o próprio dinheiro
+          quita as parcelas (mais conservador); em B o salário banca as parcelas
+          e o capital fica intocado. Use o que for mais próximo da sua
+          realidade.
+        </p>
       </div>
 
       {/* Botões */}
