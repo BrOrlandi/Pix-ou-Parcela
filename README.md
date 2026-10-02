@@ -13,7 +13,7 @@ O **Pix ou Parcela** é uma ferramenta financeira que realiza cálculos de valor
 - **Pagamento à vista (Pix)**: Valor total pago imediatamente
 - **Pagamento parcelado**: Valor total dividido em parcelas mensais
 
-A aplicação utiliza a taxa Selic atual do Banco Central do Brasil ou permite que você configure sua própria taxa de rendimento para calcular o valor presente das parcelas e determinar qual opção é mais vantajosa financeiramente.
+A aplicação usa o CDI atual do Banco Central do Brasil (com o percentual do CDI que a sua aplicação rende) ou uma taxa de rendimento sua para calcular o valor presente das parcelas e determinar qual opção é mais vantajosa financeiramente.
 
 ## ✨ Funcionalidades
 
@@ -23,12 +23,16 @@ A aplicação utiliza a taxa Selic atual do Banco Central do Brasil ou permite q
 - Cálculo do valor presente das parcelas usando taxa de desconto
 - Exibição da diferença nominal e percentual entre as opções
 - Recomendação clara sobre qual forma de pagamento é mais vantajosa
+- Comparação do patrimônio no fim das parcelas, supondo que elas saem do salário: parcelando, o valor à vista fica aplicado; no Pix, o salário que pagaria cada parcela vai para a aplicação
+- Imposto de renda no resgate pela tabela regressiva (CDB, Tesouro) ou aplicação isenta (LCI, LCA, poupança)
+- Data da 1ª parcela calculada pelo fechamento e vencimento da fatura do cartão, que ficam salvos
 
 ### 📊 Taxa de Juros
 
-- **Taxa Selic atual**: Consulta automática da taxa Selic diária através da API do Banco Central do Brasil
+- **Percentual do CDI**: consulta o CDI anualizado (série 4389) na API do Banco Central e aplica o percentual da sua aplicação sobre a taxa diária, como nos CDBs
 - **Taxa personalizada**: Permite configurar sua própria taxa média de rendimento anual
 - Conversão automática entre taxas diárias, mensais e anuais
+- A taxa, o percentual do CDI e a escolha do IR ficam salvos no navegador
 
 ### 💾 Gerenciamento de Orçamentos
 
@@ -88,7 +92,7 @@ A tela de resultado exibe uma comparação detalhada entre as opções de pagame
 
 ### APIs Externas
 
-- **API do Banco Central do Brasil** - Consulta da taxa Selic diária
+- **API do Banco Central do Brasil** - Consulta do CDI
 
 ### Outras Ferramentas
 
@@ -151,13 +155,15 @@ Os arquivos de produção serão gerados na pasta `dist/`.
 
 1. **Configure a taxa de juros**:
 
-   - Escolha entre usar a taxa Selic atual (atualizada automaticamente do BCB) ou configure sua própria taxa média de rendimento
+   - Escolha entre o percentual do CDI que sua aplicação rende (CDI atualizado automaticamente do BCB) ou sua própria taxa média de rendimento
+   - Diga se a aplicação paga IR no resgate ou é isenta
 
 2. **Preencha os dados da compra**:
 
    - Nome do orçamento (opcional)
    - Valor à vista (Pix)
    - Número de parcelas
+   - Dias de fechamento e vencimento da fatura (ou a data da 1ª parcela)
    - Valor de cada parcela
 
 3. **Calcule**:
@@ -186,6 +192,7 @@ Pix-ou-Parcela/
 │   ├── utils/               # Utilitários
 │   │   ├── calculos.ts      # Funções de cálculo financeiro
 │   │   ├── bcb-api.ts       # Integração com API do BCB
+│   │   ├── datas.ts         # Datas da fatura e da 1ª parcela
 │   │   └── storage.ts       # Gerenciamento de localStorage
 │   ├── hooks/               # Custom hooks
 │   └── lib/                 # Bibliotecas auxiliares

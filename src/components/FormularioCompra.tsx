@@ -4,12 +4,35 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Calculator } from 'lucide-react';
+import { carregarConfiguracao, salvarConfiguracao } from '@/utils/storage';
+import {
+  daquiUmMes,
+  dataValida,
+  hojeISO,
+  vencimentoDaCompra,
+} from '@/utils/datas';
+
+function diaValido(dia: number): boolean {
+  return Number.isInteger(dia) && dia >= 1 && dia <= 31;
+}
+
+/** 1ª parcela pela fatura do cartão, ou daqui a um mês sem esses dados */
+function dataPrimeiraParcelaPadrao(
+  diaFechamento?: number,
+  diaVencimento?: number
+): string {
+  return diaFechamento && diaVencimento
+    ? vencimentoDaCompra(diaFechamento, diaVencimento)
+    : daquiUmMes();
+}
 
 export interface DadosFormulario {
   nomeOrcamento: string;
   valorVista: number;
   numeroParcelas: number;
   valorParcela: number;
+  /** AAAA-MM-DD */
+  dataPrimeiraParcela: string;
 }
 
 interface FormularioCompraProps {
@@ -100,6 +123,19 @@ export function FormularioCompra({
         )
       : ''
   );
+  const [diaFechamento, setDiaFechamento] = useState(
+    () => carregarConfiguracao().diaFechamento?.toString() ?? ''
+  );
+  const [diaVencimento, setDiaVencimento] = useState(
+    () => carregarConfiguracao().diaVencimento?.toString() ?? ''
+  );
+  const [dataPrimeiraParcela, setDataPrimeiraParcela] = useState(() => {
+    if (dataValida(valoresIniciais?.dataPrimeiraParcela)) {
+      return valoresIniciais.dataPrimeiraParcela;
+    }
+    const config = carregarConfiguracao();
+    return dataPrimeiraParcelaPadrao(config.diaFechamento, config.diaVencimento);
+  });
   const [valorTotalPrazo, setValorTotalPrazo] = useState(
     valoresIniciais?.valorParcela && valoresIniciais?.numeroParcelas
       ? formatarMoedaInput(
@@ -123,6 +159,9 @@ export function FormularioCompra({
           )
         );
       }
+      if (dataValida(valoresIniciais.dataPrimeiraParcela)) {
+        setDataPrimeiraParcela(valoresIniciais.dataPrimeiraParcela);
+      }
       if (valoresIniciais.numeroParcelas !== undefined) {
         setNumeroParcelas(valoresIniciais.numeroParcelas.toString());
       }
@@ -142,6 +181,18 @@ export function FormularioCompra({
       }
     }
   }, [valoresIniciais]);
+
+  function handleDiasFaturaChange(fechamento: string, vencimento: string) {
+    setDiaFechamento(fechamento);
+    setDiaVencimento(vencimento);
+
+    const diaF = parseInt(fechamento);
+    const diaV = parseInt(vencimento);
+    if (diaValido(diaF) && diaValido(diaV)) {
+      salvarConfiguracao({ diaFechamento: diaF, diaVencimento: diaV });
+      setDataPrimeiraParcela(dataPrimeiraParcelaPadrao(diaF, diaV));
+    }
+  }
 
   // Handler para quando valor da parcela mudar
   function handleValorParcelaChange(valor: string) {
@@ -234,6 +285,7 @@ export function FormularioCompra({
     parsearValorFormatado(valorVista) > 0 &&
     !isNaN(numParcelasNumerico) &&
     numParcelasNumerico > 0 &&
+    dataValida(dataPrimeiraParcela) &&
     (valorParcelaNumerico > 0 ||
       (valorTotalPrazoNumerico > 0 && numParcelasNumerico > 0)) &&
     !desabilitado;
@@ -243,21 +295,18 @@ export function FormularioCompra({
 
     if (!podeCalcular) return;
 
-    // Garantir que temos o valor da parcela calculado
-    let valorParcelaFinal = valorParcelaNumerico;
-    if (
-      valorParcelaFinal === 0 &&
-      valorTotalPrazoNumerico > 0 &&
-      numParcelasNumerico > 0
-    ) {
-      valorParcelaFinal = valorTotalPrazoNumerico / numParcelasNumerico;
-    }
+    // O campo da parcela mostra só 2 casas; o total dá o valor exato
+    const valorParcelaFinal =
+      valorTotalPrazoNumerico > 0
+        ? valorTotalPrazoNumerico / numParcelasNumerico
+        : valorParcelaNumerico;
 
     onCalcular({
       nomeOrcamento: nome,
       valorVista: parsearValorFormatado(valorVista),
       numeroParcelas: numParcelasNumerico,
       valorParcela: valorParcelaFinal,
+      dataPrimeiraParcela,
     });
   }
 
@@ -325,6 +374,62 @@ export function FormularioCompra({
               className="mt-1.5"
               required
             />
+          </div>
+
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="diaFechamento">Fatura fecha no dia</Label>
+                <Input
+                  id="diaFechamento"
+                  type="number"
+                  inputMode="numeric"
+                  min="1"
+                  max="31"
+                  placeholder="7"
+                  value={diaFechamento}
+                  onChange={(e) =>
+                    handleDiasFaturaChange(e.target.value, diaVencimento)
+                  }
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="diaVencimento">Fatura vence no dia</Label>
+                <Input
+                  id="diaVencimento"
+                  type="number"
+                  inputMode="numeric"
+                  min="1"
+                  max="31"
+                  placeholder="11"
+                  value={diaVencimento}
+                  onChange={(e) =>
+                    handleDiasFaturaChange(diaFechamento, e.target.value)
+                  }
+                  className="mt-1.5"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="dataPrimeiraParcela">
+                Vencimento da 1ª parcela{' '}
+                <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="dataPrimeiraParcela"
+                type="date"
+                min={hojeISO()}
+                value={dataPrimeiraParcela}
+                onChange={(e) => setDataPrimeiraParcela(e.target.value)}
+                className="mt-1.5"
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Calculado pelo fechamento e vencimento do cartão, que ficam
+                salvos para as próximas compras. Sem eles, fica daqui a um mês.
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

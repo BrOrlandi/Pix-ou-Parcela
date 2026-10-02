@@ -1,6 +1,9 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { formatarMoeda } from '@/utils/calculos';
+import {
+  formatarMoeda,
+  ResultadoCalculo as ResultadoCalculoDados,
+} from '@/utils/calculos';
 import {
   Save,
   CreditCard,
@@ -8,36 +11,13 @@ import {
   Clipboard,
   Plus,
   Minus,
-  PiggyBank,
   Wallet,
 } from 'lucide-react';
+import { dataValida, formatarData } from '@/utils/datas';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 
-export interface CenarioAutoFinanciadoUI {
-  saldoFinal: number;
-  rendimentoTotal: number;
-  totalPagoParcelas: number;
-  parcelaMaiorQueRendimento: boolean;
-}
-
-export interface CenarioDinheiroNovoUI {
-  saldoFinalAplicacao: number;
-  rendimentoTotal: number;
-  totalPagoParcelas: number;
-  ganhoLiquido: number;
-}
-
-export interface Resultado {
-  valorVista: number;
-  totalPrazo: number;
-  valorPresente: number;
-  diferencaNominal: number;
-  diferencaPercentual: number;
-  compensaParcela: boolean;
-  cenarioAutoFinanciado: CenarioAutoFinanciadoUI;
-  cenarioDinheiroNovo: CenarioDinheiroNovoUI;
-}
+export type Resultado = ResultadoCalculoDados;
 
 interface ResultadoCalculoProps {
   resultado: Resultado;
@@ -45,6 +25,7 @@ interface ResultadoCalculoProps {
   mostrarBotaoSalvar?: boolean;
   nomeOrcamento?: string;
   numeroParcelas?: number;
+  dataPrimeiraParcela?: string;
 }
 
 export function ResultadoCalculo({
@@ -53,7 +34,11 @@ export function ResultadoCalculo({
   mostrarBotaoSalvar = true,
   nomeOrcamento,
   numeroParcelas,
+  dataPrimeiraParcela,
 }: ResultadoCalculoProps) {
+  const primeiraParcela = dataValida(dataPrimeiraParcela)
+    ? formatarData(dataPrimeiraParcela)
+    : null;
   const {
     valorVista,
     totalPrazo,
@@ -61,8 +46,7 @@ export function ResultadoCalculo({
     diferencaNominal,
     diferencaPercentual,
     compensaParcela,
-    cenarioAutoFinanciado,
-    cenarioDinheiroNovo,
+    patrimonio,
   } = resultado;
 
   const isMobile = useIsMobile();
@@ -84,7 +68,7 @@ export function ResultadoCalculo({
       `💰 Valor no Pix: ${formatarMoeda(valorVista)}\n` +
       `💳 Total parcelado: ${formatarMoeda(totalPrazo)}${
         numeroParcelas ? ` (${numeroParcelas}x)` : ''
-      }\n` +
+      }${primeiraParcela ? `, 1ª em ${primeiraParcela}` : ''}\n` +
       `📊 Valor presente: ${formatarMoeda(valorPresente)}\n\n` +
       `✅ *Compensa pagar ${opcaoMelhor}*\n` +
       `💵 Economia de ${formatarMoeda(
@@ -160,6 +144,7 @@ export function ResultadoCalculo({
             {numeroParcelas && (
               <span className="text-xs text-muted-foreground mt-0.5">
                 {numeroParcelas}x
+                {primeiraParcela && `, 1ª em ${primeiraParcela}`}
               </span>
             )}
           </div>
@@ -281,161 +266,96 @@ export function ResultadoCalculo({
       <div className="space-y-3">
         <div>
           <h3 className="text-base font-semibold text-card-foreground">
-            Simulação detalhada
+            Seu patrimônio no fim das {numeroParcelas ?? ''}{' '}
+            {numeroParcelas === 1 ? 'parcela' : 'parcelas'}
           </h3>
           <p className="text-xs text-muted-foreground">
-            Como ficaria seu dinheiro ao final das {numeroParcelas ?? ''}{' '}
-            {numeroParcelas === 1 ? 'parcela' : 'parcelas'}, considerando o
-            rendimento da aplicação.
+            As parcelas saem do salário e nada sai dos seus investimentos.
+            Parcelando, os {formatarMoeda(valorVista)} continuam aplicados. No
+            Pix, eles saem hoje, e o salário que pagaria cada parcela vai para a
+            aplicação.
           </p>
         </div>
 
-        {/* Cenário A — Auto-financiado */}
-        <div className="rounded-xl border border-border bg-card/50 p-4 space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-full bg-primary/10">
-              <PiggyBank className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-sm">
-                A) Aplico o valor à vista e pago as parcelas com saques
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Reservo {formatarMoeda(valorVista)} numa aplicação. A cada mês
-                ela rende e eu saco a parcela.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Rendimento bruto</span>
-              <span className="font-medium text-success">
-                +{formatarMoeda(cenarioAutoFinanciado.rendimentoTotal)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">
-                Total pago em parcelas
-              </span>
-              <span className="font-medium">
-                {formatarMoeda(cenarioAutoFinanciado.totalPagoParcelas)}
-              </span>
-            </div>
-            <div className="flex justify-between pt-2 border-t border-border">
-              <span className="font-semibold">Saldo ao final</span>
-              <span
-                className={`font-bold ${
-                  cenarioAutoFinanciado.saldoFinal >= 0
-                    ? 'text-success'
-                    : 'text-destructive'
-                }`}
-              >
-                {cenarioAutoFinanciado.saldoFinal >= 0 ? '+' : ''}
-                {formatarMoeda(cenarioAutoFinanciado.saldoFinal)}
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {cenarioAutoFinanciado.saldoFinal >= 0 ? (
-                <>
-                  Sobra{' '}
-                  <span className="font-semibold text-success">
-                    {formatarMoeda(cenarioAutoFinanciado.saldoFinal)}
-                  </span>{' '}
-                  na aplicação após pagar todas as parcelas — parcelar foi mais
-                  vantajoso que pagar no Pix.
-                </>
-              ) : (
-                <>
-                  A aplicação acabaria antes do fim das parcelas. Faltariam{' '}
-                  <span className="font-semibold text-destructive">
-                    {formatarMoeda(Math.abs(cenarioAutoFinanciado.saldoFinal))}
-                  </span>{' '}
-                  — pagar no Pix sai mais barato.
-                </>
-              )}
-            </p>
-          </div>
-        </div>
-
-        {/* Cenário B — Dinheiro novo */}
         <div className="rounded-xl border border-border bg-card/50 p-4 space-y-3">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-full bg-primary/10">
               <Wallet className="h-5 w-5 text-primary" />
             </div>
-            <div className="flex-1">
-              <p className="font-semibold text-sm">
-                B) Mantenho tudo aplicado e pago as parcelas com salário novo
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {formatarMoeda(valorVista)} ficam 100% aplicados pelos{' '}
-                {numeroParcelas ?? ''} meses, sem saques. As parcelas saem do
-                salário do mês.
-              </p>
-            </div>
+            <p className="flex-1 text-xs text-muted-foreground">
+              Comparação só do que muda entre as duas opções. O resto do seu
+              patrimônio é igual nos dois casos.
+            </p>
           </div>
 
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">
-                Saldo da aplicação ao final
+                Parcelado: {formatarMoeda(valorVista)} aplicados
               </span>
               <span className="font-medium">
-                {formatarMoeda(cenarioDinheiroNovo.saldoFinalAplicacao)}
+                {formatarMoeda(patrimonio.parceladoBruto)}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Rendimento bruto</span>
-              <span className="font-medium text-success">
-                +{formatarMoeda(cenarioDinheiroNovo.rendimentoTotal)}
-              </span>
-            </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">
-                Total pago em parcelas (salário)
+                Pix: o valor das parcelas aplicado todo mês
               </span>
               <span className="font-medium">
-                −{formatarMoeda(cenarioDinheiroNovo.totalPagoParcelas)}
+                {formatarMoeda(patrimonio.pixBruto)}
               </span>
             </div>
-            <div className="flex justify-between pt-2 border-t border-border">
-              <span className="font-semibold">Ganho líquido</span>
-              <span
-                className={`font-bold ${
-                  cenarioDinheiroNovo.ganhoLiquido >= 0
-                    ? 'text-success'
-                    : 'text-destructive'
-                }`}
-              >
-                {cenarioDinheiroNovo.ganhoLiquido >= 0 ? '+' : ''}
-                {formatarMoeda(cenarioDinheiroNovo.ganhoLiquido)}
+            <div className="flex justify-between gap-4 pt-2 border-t border-border">
+              <span className="font-semibold">
+                {patrimonio.isentoIR
+                  ? 'Diferença'
+                  : 'Diferença sem resgatar'}
               </span>
+              <SinalMoeda valor={patrimonio.diferencaBruta} />
             </div>
+
+            {!patrimonio.isentoIR && (
+              <>
+                <div className="flex justify-between gap-4">
+                  <span className="text-muted-foreground">
+                    IR do parcelado, se resgatar no fim
+                  </span>
+                  <span className="font-medium">
+                    −{formatarMoeda(patrimonio.parceladoIR)}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-muted-foreground">
+                    IR do Pix, se resgatar no fim
+                  </span>
+                  <span className="font-medium">
+                    −{formatarMoeda(patrimonio.pixIR)}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="font-semibold">
+                    Diferença resgatando no fim
+                  </span>
+                  <SinalMoeda valor={patrimonio.diferencaLiquida} />
+                </div>
+              </>
+            )}
+
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Comparado a pagar tudo no Pix hoje (e ficar sem aplicação), no
-              fim dos {numeroParcelas ?? ''} meses você fica com{' '}
-              <span
-                className={`font-semibold ${
-                  cenarioDinheiroNovo.ganhoLiquido >= 0
-                    ? 'text-success'
-                    : 'text-destructive'
-                }`}
-              >
-                {cenarioDinheiroNovo.ganhoLiquido >= 0 ? '+' : ''}
-                {formatarMoeda(cenarioDinheiroNovo.ganhoLiquido)}
-              </span>{' '}
-              em relação ao Pix.
+              Valor positivo: parcelar deixa você com mais patrimônio. Negativo:
+              o Pix deixa.
+              {!patrimonio.isentoIR && (
+                <>
+                  {' '}
+                  O IR só é cobrado no resgate. A recomendação usa o caso
+                  resgatando no fim, que é o mais conservador; se o dinheiro
+                  continuar aplicado, a diferença segue rendendo e o imposto
+                  fica para depois.
+                </>
+              )}
             </p>
           </div>
         </div>
-
-        <p className="text-[11px] leading-relaxed text-muted-foreground/80 px-1">
-          ⚠️ Os cenários A e B são premissas diferentes: em A o próprio dinheiro
-          quita as parcelas (mais conservador); em B o salário banca as parcelas
-          e o capital fica intocado. Use o que for mais próximo da sua
-          realidade.
-        </p>
       </div>
 
       {/* Botões */}
@@ -471,5 +391,16 @@ export function ResultadoCalculo({
         )}
       </div>
     </Card>
+  );
+}
+
+function SinalMoeda({ valor }: { valor: number }) {
+  return (
+    <span
+      className={`font-bold ${valor >= 0 ? 'text-success' : 'text-destructive'}`}
+    >
+      {valor >= 0 ? '+' : '−'}
+      {formatarMoeda(Math.abs(valor))}
+    </span>
   );
 }

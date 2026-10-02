@@ -4,9 +4,12 @@ export interface Orcamento {
   valorVista: number;
   numeroParcelas: number;
   valorParcela: number;
-  origemTaxa: "selic" | "personalizada";
+  origemTaxa: "cdi" | "selic" | "personalizada";
   taxaAnual?: number;
+  percentualCDI?: number;
   taxaMensal: number;
+  isentoIR?: boolean;
+  dataPrimeiraParcela?: string;
   valorPresenteParcelado: number;
   totalPrazo: number;
   diferencaNominal: number;
@@ -17,12 +20,13 @@ export interface Orcamento {
 }
 
 export interface ConfiguracaoApp {
-  ultimaTaxaSelecionada: "selic" | "personalizada";
+  ultimaTaxaSelecionada: "cdi" | "selic" | "personalizada";
   ultimaTaxaPersonalizada?: number;
-  ultimaSelic?: {
-    taxaDiaria: number;
-    dataConsulta: string;
-  };
+  percentualCDI?: number;
+  isentoIR?: boolean;
+  /** Dias do mês em que a fatura do cartão fecha e vence */
+  diaFechamento?: number;
+  diaVencimento?: number;
 }
 
 export interface UltimosInputs {
@@ -82,8 +86,15 @@ export function excluirOrcamento(id: string): void {
 }
 
 // Gerenciamento de configurações
-export function salvarConfiguracao(config: ConfiguracaoApp): void {
-  localStorage.setItem(STORAGE_KEYS.configuracao, JSON.stringify(config));
+export function salvarConfiguracao(config: Partial<ConfiguracaoApp>): void {
+  try {
+    localStorage.setItem(
+      STORAGE_KEYS.configuracao,
+      JSON.stringify({ ...carregarConfiguracao(), ...config })
+    );
+  } catch (error) {
+    console.error("Erro ao salvar configuração:", error);
+  }
 }
 
 export function carregarConfiguracao(): ConfiguracaoApp {
@@ -91,14 +102,14 @@ export function carregarConfiguracao(): ConfiguracaoApp {
     const dados = localStorage.getItem(STORAGE_KEYS.configuracao);
     if (!dados) {
       return {
-        ultimaTaxaSelecionada: "selic",
+        ultimaTaxaSelecionada: "cdi",
       };
     }
     return JSON.parse(dados);
   } catch (error) {
     console.error("Erro ao carregar configuração:", error);
     return {
-      ultimaTaxaSelecionada: "selic",
+      ultimaTaxaSelecionada: "cdi",
     };
   }
 }

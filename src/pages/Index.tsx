@@ -6,21 +6,16 @@ import {
 } from '@/components/FormularioCompra';
 import { ResultadoCalculo, Resultado } from '@/components/ResultadoCalculo';
 import { ListaOrcamentos } from '@/components/ListaOrcamentos';
-import {
-  calcularComparacao,
-  simularAutoFinanciado,
-  simularDinheiroNovo,
-} from '@/utils/calculos';
+import { calcularComparacao } from '@/utils/calculos';
 import {
   salvarOrcamento,
   listarOrcamentos,
   excluirOrcamento,
-  salvarConfiguracao,
-  carregarConfiguracao,
   salvarUltimosInputs,
   carregarUltimosInputs,
   Orcamento,
 } from '@/utils/storage';
+import { dataValida, mesesAte } from '@/utils/datas';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { DollarSign, Github } from 'lucide-react';
@@ -42,21 +37,12 @@ export default function Index() {
     string | null
   >(null);
 
-  // Carregar configurações iniciais
   useEffect(() => {
-    const config = carregarConfiguracao();
-    const ultimosInputs = carregarUltimosInputs();
     setOrcamentos(listarOrcamentos());
   }, []);
 
   function handleTaxaChange(taxa: TaxaInfo) {
     setTaxaInfo(taxa);
-
-    // Salvar configuração
-    salvarConfiguracao({
-      ultimaTaxaSelecionada: taxa.tipo,
-      ultimaTaxaPersonalizada: taxa.taxaAnual,
-    });
 
     // Recalcular se já houver dados
     if (dadosAtuais) {
@@ -94,8 +80,12 @@ export default function Index() {
         valorVista: dados.valorVista,
         numeroParcelas: dados.numeroParcelas,
         valorParcela: dados.valorParcela,
+        mesesAtePrimeiraParcela: dataValida(dados.dataPrimeiraParcela)
+          ? mesesAte(dados.dataPrimeiraParcela)
+          : undefined,
       },
-      taxa.taxaMensal
+      taxa.taxaMensal,
+      taxa.isentoIR
     );
 
     setResultado(resultado);
@@ -112,7 +102,10 @@ export default function Index() {
       valorParcela: dadosAtuais.valorParcela,
       origemTaxa: taxaInfo.tipo,
       taxaAnual: taxaInfo.taxaAnual,
+      percentualCDI: taxaInfo.percentualCDI,
       taxaMensal: taxaInfo.taxaMensal,
+      isentoIR: taxaInfo.isentoIR,
+      dataPrimeiraParcela: dadosAtuais.dataPrimeiraParcela,
       valorPresenteParcelado: resultado.valorPresente,
       totalPrazo: resultado.totalPrazo,
       diferencaNominal: resultado.diferencaNominal,
@@ -141,38 +134,21 @@ export default function Index() {
       valorVista: orcamento.valorVista,
       numeroParcelas: orcamento.numeroParcelas,
       valorParcela: orcamento.valorParcela,
+      dataPrimeiraParcela: orcamento.dataPrimeiraParcela ?? '',
     };
     setDadosAtuais(dados);
 
-    // Restaurar taxa
+    // Restaurar taxa. Orçamentos antigos foram calculados sem IR.
     const taxa: TaxaInfo = {
       tipo: orcamento.origemTaxa,
       taxaMensal: orcamento.taxaMensal,
       taxaAnual: orcamento.taxaAnual,
+      percentualCDI: orcamento.percentualCDI,
+      isentoIR: orcamento.isentoIR ?? true,
     };
     setTaxaInfo(taxa);
 
-    // Restaurar resultado (recalculando os cenários a partir dos dados salvos)
-    setResultado({
-      valorVista: orcamento.valorVista,
-      totalPrazo: orcamento.totalPrazo,
-      valorPresente: orcamento.valorPresenteParcelado,
-      diferencaNominal: orcamento.diferencaNominal,
-      diferencaPercentual: orcamento.diferencaPercentual,
-      compensaParcela: orcamento.compensaParcela,
-      cenarioAutoFinanciado: simularAutoFinanciado(
-        orcamento.valorVista,
-        orcamento.valorParcela,
-        orcamento.numeroParcelas,
-        orcamento.taxaMensal
-      ),
-      cenarioDinheiroNovo: simularDinheiroNovo(
-        orcamento.valorVista,
-        orcamento.valorParcela,
-        orcamento.numeroParcelas,
-        orcamento.taxaMensal
-      ),
-    });
+    calcular(dados, taxa);
 
     toast({
       title: 'Orçamento carregado',
@@ -233,17 +209,7 @@ export default function Index() {
       {/* Main Content */}
       <main className="container max-w-2xl mx-auto px-4 py-6 space-y-6 pb-20">
         {/* Taxa Selector */}
-        <TaxaSelector
-          onTaxaChange={handleTaxaChange}
-          valorInicial={
-            taxaInfo
-              ? {
-                  tipo: taxaInfo.tipo,
-                  taxaPersonalizada: taxaInfo.taxaAnual,
-                }
-              : undefined
-          }
-        />
+        <TaxaSelector onTaxaChange={handleTaxaChange} />
 
         {/* Formulário */}
         <FormularioCompra
@@ -260,6 +226,7 @@ export default function Index() {
             mostrarBotaoSalvar={!!dadosAtuais?.nomeOrcamento}
             nomeOrcamento={dadosAtuais?.nomeOrcamento}
             numeroParcelas={dadosAtuais?.numeroParcelas}
+            dataPrimeiraParcela={dadosAtuais?.dataPrimeiraParcela}
           />
         )}
 
